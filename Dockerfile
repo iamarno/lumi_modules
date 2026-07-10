@@ -16,6 +16,10 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends git ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
+# The lumi git dep is locked as ssh://; the build has no SSH key.
+# Fetch that one public repo over anonymous HTTPS instead.
+RUN git config --global url."https://github.com/iamarno/lumi".insteadOf "ssh://git@github.com/iamarno/lumi"
+
 WORKDIR /app
 COPY package.json package-lock.json ./
 # lockfile pins the lumi git dep to an exact commit

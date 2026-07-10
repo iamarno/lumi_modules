@@ -18,6 +18,9 @@ jobs:
         with:
           node-version: 24
 
+      - name: Use HTTPS for the public lumi git dependency
+        run: git config --global url."https://github.com/iamarno/lumi".insteadOf "ssh://git@github.com/iamarno/lumi"
+
       - name: Install dependencies
         run: npm ci
 

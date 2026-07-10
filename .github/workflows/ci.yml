@@ -26,6 +26,11 @@ jobs:
         with:
           node-version: 24
 
+      # The `lumi` git dependency is locked as ssh://; CI has no SSH key.
+      # Fetch that one public repo over anonymous HTTPS instead.
+      - name: Use HTTPS for the public lumi git dependency
+        run: git config --global url."https://github.com/iamarno/lumi".insteadOf "ssh://git@github.com/iamarno/lumi"
+
       - name: Install dependencies
         run: npm ci
 
