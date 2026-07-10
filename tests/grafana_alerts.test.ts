@@ -202,6 +202,17 @@ describe('grafana_alerts module registration', () => {
     delete process.env.GRAFANA_ALERTS_PORT;
     delete process.env.GRAFANA_ALERTS_ROOMS;
   });
+
+  test('does not register !alerts when GRAFANA_ALERTS_SECRET is empty', () => {
+    process.env.GRAFANA_ALERTS_PORT  = '19876';
+    process.env.GRAFANA_ALERTS_ROOMS = '!room:x';
+    delete process.env.GRAFANA_ALERTS_SECRET;
+    const registry = makeRegistry();
+    mod.register(registry, mockConfig);
+    expect(registry.get('alerts')).toBeUndefined();
+    delete process.env.GRAFANA_ALERTS_PORT;
+    delete process.env.GRAFANA_ALERTS_ROOMS;
+  });
 });
 
 // ── !alerts command ───────────────────────────────────────────────────────────
@@ -213,6 +224,7 @@ describe('!alerts command', () => {
     storeData = {};
     process.env.GRAFANA_ALERTS_PORT  = '19876';
     process.env.GRAFANA_ALERTS_ROOMS = '!room:x';
+    process.env.GRAFANA_ALERTS_SECRET = 'test-secret';
     registry = makeRegistry();
     mod.register(registry, mockConfig);
   });
@@ -220,6 +232,7 @@ describe('!alerts command', () => {
   afterEach(() => {
     delete process.env.GRAFANA_ALERTS_PORT;
     delete process.env.GRAFANA_ALERTS_ROOMS;
+    delete process.env.GRAFANA_ALERTS_SECRET;
   });
 
   test('!alerts status shows port, rooms, and muted state', async () => {
@@ -274,6 +287,7 @@ describe('grafana_alerts:silence reply handler', () => {
     storeData = {};
     process.env.GRAFANA_ALERTS_PORT  = '19876';
     process.env.GRAFANA_ALERTS_ROOMS = '!room:x';
+    process.env.GRAFANA_ALERTS_SECRET = 'test-secret';
     registry = makeRegistry();
     mod.register(registry, mockConfig);
   });
@@ -281,6 +295,7 @@ describe('grafana_alerts:silence reply handler', () => {
   afterEach(() => {
     delete process.env.GRAFANA_ALERTS_PORT;
     delete process.env.GRAFANA_ALERTS_ROOMS;
+    delete process.env.GRAFANA_ALERTS_SECRET;
   });
 
   function getReplyHandler() {

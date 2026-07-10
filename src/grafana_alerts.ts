@@ -157,6 +157,13 @@ const mod: BotModule = {
       log.warn("GRAFANA_ALERTS_PORT set but GRAFANA_ALERTS_ROOMS is empty — module disabled");
       return;
     }
+    if (!secret) {
+      log.warn(
+        "GRAFANA_ALERTS_PORT set but GRAFANA_ALERTS_SECRET is empty — refusing to open an " +
+        "unauthenticated webhook listener; set GRAFANA_ALERTS_SECRET to enable"
+      );
+      return;
+    }
 
     const store = new ModuleStore("grafana_alerts");
     let muted = store.get<boolean>("muted", false);

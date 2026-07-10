@@ -2,6 +2,7 @@
   "name": "lumi_modules",
   "version": "1.0.0",
   "description": "Feature modules for the lumi Matrix bot — delivered as an optional add-on to the lumi core image",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "build": "tsc",

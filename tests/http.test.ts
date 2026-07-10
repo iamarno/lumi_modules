@@ -68,6 +68,43 @@ describe('http module', () => {
     });
   });
 
+  describe('SSRF guard', () => {
+    test.each([
+      'http://169.254.169.254/latest/meta-data/',   // cloud metadata
+      'http://127.0.0.1/',                           // loopback
+      'http://10.0.0.5/',                            // private
+      'http://192.168.1.1/',                         // private
+      'http://172.16.0.1/',                          // private
+      'http://[::1]/',                               // IPv6 loopback
+      'https://localhost/',                          // localhost
+      'ftp://example.com/',                          // non-http scheme
+    ])('!fetch blocks %s', async (url) => {
+      const result = await invoke(registry, 'fetch', [url]);
+      expect(result).toContain('Blocked');
+      expect(mockedAxios.get).not.toHaveBeenCalled();
+    });
+
+    test('!json blocks a private target too', async () => {
+      const result = await invoke(registry, 'json', ['http://169.254.169.254/', 'x']);
+      expect(result).toContain('Blocked');
+      expect(mockedAxios.get).not.toHaveBeenCalled();
+    });
+
+    test('isBlockedIp classifies addresses correctly', () => {
+      const { isBlockedIp } = mod;
+      // blocked
+      for (const ip of ['127.0.0.1', '10.1.2.3', '172.16.5.5', '192.168.0.1',
+                         '169.254.169.254', '0.0.0.0', '::1', 'fe80::1', 'fd00::1',
+                         '::ffff:127.0.0.1', 'not-an-ip']) {
+        expect(isBlockedIp(ip)).toBe(true);
+      }
+      // allowed (public)
+      for (const ip of ['8.8.8.8', '1.1.1.1', '93.184.216.34', '2606:4700:4700::1111']) {
+        expect(isBlockedIp(ip)).toBe(false);
+      }
+    });
+  });
+
   describe('!json', () => {
     test('extracts a top-level field', async () => {
       mockedAxios.get.mockResolvedValueOnce({ data: { name: 'Alice' } });

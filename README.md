@@ -58,9 +58,9 @@ Core variables (`MATRIX_*`, `LUMI_*`, `METRICS_PORT`, `LOG_LEVEL`) are documente
 | `GRAFANA_TOKEN` | Grafana service account token | _(optional if Grafana allows anonymous access)_ |
 | `GRAFANA_ALERTS_PORT` | Port for the Grafana webhook receiver | _(blank = disabled)_ |
 | `GRAFANA_ALERTS_ROOMS` | Comma-separated Matrix room IDs to forward alerts to | _(required to enable)_ |
-| `GRAFANA_ALERTS_SECRET` | HMAC-SHA256 secret for webhook signature verification. **Treat as mandatory whenever the port is reachable beyond localhost.** | _(optional but strongly recommended)_ |
+| `GRAFANA_ALERTS_SECRET` | HMAC-SHA256 secret for webhook signature verification. **Required** — the webhook listener refuses to start without it. | _(required to enable the module)_ |
 | `GRAFANA_ALERTS_RESOLVED` | Also forward resolved alerts | `true` |
-| `HTTP_ALLOWED_DOMAINS` | Comma-separated allowed domains for `!fetch` / `!json`. **Blank allows ALL domains — set this in any shared or cluster deployment** (the check does not yet block private/internal IP ranges). | _(blank = allow all)_ |
+| `HTTP_ALLOWED_DOMAINS` | Comma-separated allowed domains for `!fetch` / `!json`. Blank allows all **public** domains; requests to private/internal/loopback/metadata addresses are always blocked. Set an allowlist in shared or cluster deployments to restrict outbound reach. | _(blank = allow all public)_ |
 | `WEATHER_ENABLED` | Enable `!weather` / `!forecast` | `true` |
 | `PLANTS` | Comma-separated list of plant slugs | _(leave blank to disable module)_ |
 | `PLANTS_ROOMS` | Comma-separated room IDs for plant reminders | _(required for reminders)_ |
@@ -145,7 +145,7 @@ When an alert fires, Lumi posts a message to all `GRAFANA_ALERTS_ROOMS` and (if 
 
 **Silencing an alert from Matrix:** reply to an alert message with `silence 2h`, `silence 30m`, `silence 1d`, or just 🔕 (defaults to 1h). Lumi creates a Grafana silence via the API and confirms in the same thread. Requires `GRAFANA_TOKEN` with editor permissions.
 
-**Signature verification:** set `GRAFANA_ALERTS_SECRET` to a shared secret and paste the same value into the **Secret** field in your Grafana contact point (under Optional settings). Grafana will sign each request with `HMAC-SHA256(body)` and send the signature in `X-Grafana-Alerting-Signature`. Unsigned requests are rejected when the secret is set — **always set it when the port is reachable beyond localhost** (in Kubernetes, also restrict the port with a NetworkPolicy; the core Helm chart does this).
+**Signature verification (required):** `GRAFANA_ALERTS_SECRET` is mandatory — the webhook listener refuses to start without it, so there is no unauthenticated mode. Set it to a shared secret and paste the same value into the **Secret** field in your Grafana contact point (under Optional settings). Grafana signs each request with `HMAC-SHA256(body)` and sends the signature in `X-Grafana-Alerting-Signature`; requests with a missing or invalid signature are rejected. In Kubernetes, also restrict the port with a NetworkPolicy (the core Helm chart does this).
 
 ```env
 GRAFANA_ALERTS_PORT=9093
@@ -171,7 +171,7 @@ GRAFANA_ALERTS_RESOLVED=true
 | `!fetch <url>` | GET a URL and show the response |
 | `!json <url> <field.path>` | GET JSON and extract a dotted field |
 
-**Security:** `HTTP_ALLOWED_DOMAINS` restricts which hostnames can be fetched. Leaving it blank allows any URL — including internal ones — so set an explicit allowlist in any shared or cluster deployment. (Blocking private/link-local IP ranges in code is a planned hardening; until then, rely on the allowlist plus an egress NetworkPolicy.)
+**Security:** requests to private, loopback, link-local, and cloud-metadata (`169.254.169.254`) addresses are always blocked — enforced at connection time, so DNS rebinding and redirects to internal targets are covered too. `HTTP_ALLOWED_DOMAINS` additionally restricts which *public* hostnames may be fetched; leave it blank to allow any public URL, or set an allowlist in shared/cluster deployments to bound outbound reach (pair with an egress NetworkPolicy for defence in depth).
 
 ### 🌤️ Weather
 | Command | Description |
@@ -250,7 +250,7 @@ SENTINEL_SIMULATION_LIGHTS=light.living_room,light.bedroom,light.kitchen
 SENTINEL_SIMULATION_INTERVAL=1800        # apply phase every 30 min
 SENTINEL_SIM_MORNING=06:00-09:00         # first half of lights on
 SENTINEL_SIM_EVENING=18:00-23:00         # all lights on
-SENTINEL_PRESENCE_ENTITIES=person.arno  # track presence (required for auto arm)
+SENTINEL_PRESENCE_ENTITIES=person.alice  # track presence (required for auto arm)
 SENTINEL_PRESENCE_POLL=300              # check presence every 5 min
 SENTINEL_ARM_MODE=auto                  # auto arm/disarm via presence
 SENTINEL_SUMMARY_MODE=armed             # only send scheduled summaries when armed

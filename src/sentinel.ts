@@ -20,7 +20,7 @@
  *   SENTINEL_SIMULATION_INTERVAL=1800          — Seconds between simulation ticks (default: 1800)
  *   SENTINEL_SIM_MORNING=06:00-09:00           — Morning window: first half of lights on (default)
  *   SENTINEL_SIM_EVENING=18:00-23:00           — Evening window: all lights on (default)
- *   SENTINEL_PRESENCE_ENTITIES=person.arno     — HA person entities for auto arm/disarm
+ *   SENTINEL_PRESENCE_ENTITIES=person.alice     — HA person entities for auto arm/disarm
  *   SENTINEL_PRESENCE_POLL=300                 — Seconds between presence checks (default: 300, 0=off)
  *   SENTINEL_ARM_MODE=manual                   — Default arm mode: "auto" (presence-based) or "manual" (default: manual)
  *   SENTINEL_SUMMARY_MODE=armed               — When to send scheduled summary: "armed" (default) or "always"
