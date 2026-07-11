@@ -9,9 +9,9 @@ const mod = require('../src/http');
 
 const baseConfig: BotConfig = {
   homeserver: '', userId: '', accessToken: '',
-  prometheusUrl: '', hassUrl: '', hassToken: '', grafanaUrl: '', grafanaToken: '',
-  httpAllowedDomains: [], weatherEnabled: false, logLevel: 'info',
+  logLevel: 'info',
   e2eeEnabled: false, deviceId: '', cryptoPassword: '', cryptoSaveInterval: 60,
+  adminUsers: [],
 };
 
 async function invoke(registry: ModuleRegistry, name: string, args: string[]) {

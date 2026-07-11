@@ -31,10 +31,9 @@ const { parseDuration, formatDuration, panelUrlToRenderUrl, formatAlert } = mod;
 
 const mockConfig: BotConfig = {
   homeserver: '', userId: '', accessToken: '',
-  prometheusUrl: '', hassUrl: '', hassToken: '',
-  grafanaUrl: 'http://grafana:3000', grafanaToken: 'gtoken',
-  httpAllowedDomains: [], weatherEnabled: false, logLevel: 'info',
+  logLevel: 'info',
   e2eeEnabled: false, deviceId: '', cryptoPassword: '', cryptoSaveInterval: 60,
+  adminUsers: [],
 };
 
 function makeRegistry(): ModuleRegistry {
@@ -351,7 +350,7 @@ describe('grafana_alerts:silence reply handler', () => {
     // Register with no grafana config
     storeData = {};
     const reg2 = makeRegistry();
-    mod.register(reg2, { ...mockConfig, grafanaUrl: '', grafanaToken: '' });
+    mod.register(reg2, { ...mockConfig, });
     const handler2 = (reg2 as any).replyHandlers.find((h: any) => h.match('!room:x', 'silence 1h'));
 
     // Inject a fake alert event into the map by invoking a webhook

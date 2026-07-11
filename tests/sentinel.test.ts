@@ -34,9 +34,9 @@ const { timeAgo, getSimPhase } = mod;
 
 const mockConfig: BotConfig = {
   homeserver: '', userId: '', accessToken: '',
-  prometheusUrl: '', hassUrl: 'http://ha.local:8123', hassToken: 'sentinel-token',
-  grafanaUrl: '', grafanaToken: '', httpAllowedDomains: [], weatherEnabled: false, logLevel: 'info',
+  logLevel: 'info',
   e2eeEnabled: false, deviceId: '', cryptoPassword: '', cryptoSaveInterval: 60,
+  adminUsers: [],
 };
 
 function hassState(entity_id: string, state: string, attrs: Record<string, unknown> = {}, last_changed = '2026-01-01T12:00:00.000Z') {

@@ -12,10 +12,9 @@ const mod = require('../src/grafana');
 
 const mockConfig: BotConfig = {
   homeserver: '', userId: '', accessToken: '',
-  prometheusUrl: '', hassUrl: '', hassToken: '',
-  grafanaUrl: 'http://grafana:3000', grafanaToken: 'gtoken',
-  httpAllowedDomains: [], weatherEnabled: false, logLevel: 'info',
+  logLevel: 'info',
   e2eeEnabled: false, deviceId: '', cryptoPassword: '', cryptoSaveInterval: 60,
+  adminUsers: [],
 };
 
 const mockClient = {};

@@ -9,9 +9,9 @@ const mod = require('../src/weather');
 
 const mockConfig: BotConfig = {
   homeserver: '', userId: '', accessToken: '',
-  prometheusUrl: '', hassUrl: '', hassToken: '', grafanaUrl: '', grafanaToken: '', httpAllowedDomains: [],
-  weatherEnabled: true, logLevel: 'info',
+  logLevel: 'info',
   e2eeEnabled: false, deviceId: '', cryptoPassword: '', cryptoSaveInterval: 60,
+  adminUsers: [],
 };
 
 const hourly = Array(8).fill({ weatherDesc: [{ value: 'Sunny' }] });

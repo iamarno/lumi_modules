@@ -6,9 +6,9 @@ import { BotConfig } from 'lumi';
 
 const mockConfig: BotConfig = {
   homeserver: '', userId: '', accessToken: '',
-  prometheusUrl: '', hassUrl: '', hassToken: '', grafanaUrl: '', grafanaToken: '', httpAllowedDomains: [],
-  weatherEnabled: false, logLevel: 'info',
+  logLevel: 'info',
   e2eeEnabled: false, deviceId: '', cryptoPassword: '', cryptoSaveInterval: 60,
+  adminUsers: [],
 };
 
 function makeCtx(registry: ModuleRegistry, args: string[], roomId = '!room:matrix.org') {

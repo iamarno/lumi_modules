@@ -12,9 +12,9 @@ const mod = require('../src/homeassistant');
 
 const mockConfig: BotConfig = {
   homeserver: '', userId: '', accessToken: '',
-  prometheusUrl: '', hassUrl: 'http://ha.local:8123', hassToken: 'token123',
-  grafanaUrl: '', grafanaToken: '', httpAllowedDomains: [], weatherEnabled: false, logLevel: 'info',
+  logLevel: 'info',
   e2eeEnabled: false, deviceId: '', cryptoPassword: '', cryptoSaveInterval: 60,
+  adminUsers: [],
 };
 
 async function invoke(registry: ModuleRegistry, args: string[]) {
