@@ -9,9 +9,9 @@ const mod = require('../src/weather');
 
 const mockConfig: BotConfig = {
   homeserver: '', userId: '', accessToken: '',
-  prometheusUrl: '', hassUrl: '', hassToken: '', grafanaUrl: '', grafanaToken: '', httpAllowedDomains: [],
-  weatherEnabled: true, logLevel: 'info',
+  logLevel: 'info',
   e2eeEnabled: false, deviceId: '', cryptoPassword: '', cryptoSaveInterval: 60,
+  adminUsers: [],
 };
 
 const hourly = Array(8).fill({ weatherDesc: [{ value: 'Sunny' }] });
@@ -51,11 +51,13 @@ describe('weather module', () => {
     expect(registry.get('forecast')).toBeDefined();
   });
 
-  test('does not register commands when weatherEnabled is false', () => {
+  test('does not register commands when WEATHER_ENABLED is false', () => {
+    process.env.WEATHER_ENABLED = 'false';
     const reg = new ModuleRegistry();
-    mod.register(reg, { ...mockConfig, weatherEnabled: false });
+    mod.register(reg, mockConfig);
     expect(reg.get('weather')).toBeUndefined();
     expect(reg.get('forecast')).toBeUndefined();
+    delete process.env.WEATHER_ENABLED;
   });
 
   test('!weather returns current conditions', async () => {

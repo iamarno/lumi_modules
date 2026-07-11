@@ -47,7 +47,7 @@ const mod: BotModule = {
   register(registry: ModuleRegistry, config: BotConfig) {
     registry.registerModule('weather', 'Current weather and forecasts');
 
-    if (!config.weatherEnabled) return;
+    if (!envBool("WEATHER_ENABLED", true)) return;
 
     registry.register({
       name: "weather",

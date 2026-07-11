@@ -9,9 +9,9 @@ const mod = require('../src/http');
 
 const baseConfig: BotConfig = {
   homeserver: '', userId: '', accessToken: '',
-  prometheusUrl: '', hassUrl: '', hassToken: '', grafanaUrl: '', grafanaToken: '',
-  httpAllowedDomains: [], weatherEnabled: false, logLevel: 'info',
+  logLevel: 'info',
   e2eeEnabled: false, deviceId: '', cryptoPassword: '', cryptoSaveInterval: 60,
+  adminUsers: [],
 };
 
 async function invoke(registry: ModuleRegistry, name: string, args: string[]) {
@@ -52,19 +52,23 @@ describe('http module', () => {
     });
 
     test('blocks domain not in allowlist', async () => {
+      process.env.HTTP_ALLOWED_DOMAINS = 'example.com';
       const reg = new ModuleRegistry();
-      mod.register(reg, { ...baseConfig, httpAllowedDomains: ['example.com'] });
+      mod.register(reg, baseConfig);
       expect(await invoke(reg, 'fetch', ['https://evil.com'])).toContain('Domain not in');
+      delete process.env.HTTP_ALLOWED_DOMAINS;
     });
 
     test('allows domain that is in allowlist', async () => {
+      process.env.HTTP_ALLOWED_DOMAINS = 'example.com';
       mockedAxios.get.mockResolvedValueOnce({
         data: 'ok', headers: { 'content-type': 'text/plain' }, status: 200,
       });
       const reg = new ModuleRegistry();
-      mod.register(reg, { ...baseConfig, httpAllowedDomains: ['example.com'] });
+      mod.register(reg, baseConfig);
       const result = await invoke(reg, 'fetch', ['https://example.com/path']);
       expect(result).toContain('ok');
+      delete process.env.HTTP_ALLOWED_DOMAINS;
     });
   });
 

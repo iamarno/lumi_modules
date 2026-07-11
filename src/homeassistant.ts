@@ -11,7 +11,7 @@
  */
 
 import axios, { AxiosInstance } from "axios";
-import { BotModule, ModuleRegistry, CommandContext, errMsg } from "lumi";
+import { BotModule, ModuleRegistry, CommandContext, errMsg, env } from "lumi";
 import { BotConfig } from "lumi";
 import { logger } from "lumi";
 
@@ -40,15 +40,17 @@ const mod: BotModule = {
   register(registry: ModuleRegistry, config: BotConfig) {
     registry.registerModule('homeassistant', 'Control and query Home Assistant entities');
 
-    if (!config.hassToken) {
+    const hassUrl = env("HASS_URL", "http://homeassistant.local:8123");
+    const hassToken = env("HASS_TOKEN");
+    if (!hassToken) {
       log.warn("HASS_TOKEN not set — module disabled");
       return;
     }
 
     const http = axios.create({
-      baseURL: config.hassUrl,
+      baseURL: hassUrl,
       headers: {
-        Authorization: `Bearer ${config.hassToken}`,
+        Authorization: `Bearer ${hassToken}`,
         "Content-Type": "application/json",
       },
       timeout: 12_000,

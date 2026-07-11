@@ -20,7 +20,7 @@ import * as dns from "dns";
 import * as net from "net";
 import * as http from "http";
 import * as https from "https";
-import { BotModule, ModuleRegistry, errMsg } from "lumi";
+import { BotModule, ModuleRegistry, errMsg, envList } from "lumi";
 import { BotConfig } from "lumi";
 
 // ── SSRF guard ────────────────────────────────────────────────────────────────
@@ -133,7 +133,7 @@ const mod: BotModule = {
   register(registry: ModuleRegistry, config: BotConfig) {
     registry.registerModule('http', 'Make HTTP requests from chat');
 
-    const allowed = config.httpAllowedDomains;
+    const allowed = envList("HTTP_ALLOWED_DOMAINS");
 
     registry.register({
       name: "fetch",

@@ -12,10 +12,9 @@ const mod = require('../src/grafana');
 
 const mockConfig: BotConfig = {
   homeserver: '', userId: '', accessToken: '',
-  prometheusUrl: '', hassUrl: '', hassToken: '',
-  grafanaUrl: 'http://grafana:3000', grafanaToken: 'gtoken',
-  httpAllowedDomains: [], weatherEnabled: false, logLevel: 'info',
+  logLevel: 'info',
   e2eeEnabled: false, deviceId: '', cryptoPassword: '', cryptoSaveInterval: 60,
+  adminUsers: [],
 };
 
 const mockClient = {};
@@ -32,10 +31,18 @@ describe('grafana module', () => {
   beforeEach(() => {
     registry = new ModuleRegistry();
     mockedRender.mockResolvedValue(undefined);
+    process.env.GRAFANA_URL = 'http://grafana:3000';
+    process.env.GRAFANA_TOKEN = 'gtoken';
+  });
+
+  afterEach(() => {
+    delete process.env.GRAFANA_URL;
+    delete process.env.GRAFANA_TOKEN;
   });
 
   test('does not register !graph when GRAFANA_URL is empty', () => {
-    mod.register(registry, { ...mockConfig, grafanaUrl: '' });
+    delete process.env.GRAFANA_URL;
+    mod.register(registry, mockConfig);
     expect(registry.get('graph')).toBeUndefined();
   });
 

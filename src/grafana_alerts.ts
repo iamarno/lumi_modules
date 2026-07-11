@@ -146,6 +146,8 @@ const mod: BotModule = {
     const forwardResolved  = envBool("GRAFANA_ALERTS_RESOLVED", true);
     const receiverName     = env("GRAFANA_ALERTS_RECEIVER");
     const testPanelUrl     = env("GRAFANA_TEST_PANEL_URL");
+    const grafanaUrl       = env("GRAFANA_URL");
+    const grafanaToken     = env("GRAFANA_TOKEN");
 
     registry.registerModule("grafana_alerts", "Forward Grafana alerts to Matrix rooms");
 
@@ -204,16 +206,16 @@ const mod: BotModule = {
         }
 
         if (sub === "test") {
-          if (!config.grafanaUrl || !config.grafanaToken) {
+          if (!grafanaUrl || !grafanaToken) {
             return "❌ `GRAFANA_URL` and `GRAFANA_TOKEN` must be configured to fire a test alert.";
           }
           if (!receiverName) {
             return "❌ `GRAFANA_ALERTS_RECEIVER` must be set to the Grafana contact point name (Alerting → Contact points).";
           }
 
-          const base    = config.grafanaUrl.replace(/\/$/, "");
+          const base    = grafanaUrl.replace(/\/$/, "");
           const headers = {
-            Authorization:  `Bearer ${config.grafanaToken}`,
+            Authorization:  `Bearer ${grafanaToken}`,
             "Content-Type": "application/json",
           };
 
@@ -262,13 +264,13 @@ const mod: BotModule = {
             // test panel directly instead. Delay slightly so the webhook alert
             // message arrives in the room before the image.
             if (testPanelUrl) {
-              const renderUrl = panelUrlToRenderUrl(testPanelUrl, config.grafanaUrl);
+              const renderUrl = panelUrlToRenderUrl(testPanelUrl, grafanaUrl);
               if (renderUrl) {
                 void (async () => {
                   await new Promise((r) => setTimeout(r, 1_500));
                   for (const roomId of rooms) {
                     try {
-                      await renderAndUpload(ctx.client, roomId, renderUrl, config.grafanaToken);
+                      await renderAndUpload(ctx.client, roomId, renderUrl, grafanaToken);
                     } catch (err) {
                       log.warn("test panel render failed:", err instanceof Error ? err.message : err);
                     }
@@ -320,7 +322,7 @@ const mod: BotModule = {
         const record = alertEventMap.get(replyToEventId);
         if (!record) return null;
 
-        if (!config.grafanaUrl || !config.grafanaToken) {
+        if (!grafanaUrl || !grafanaToken) {
           return "❌ `GRAFANA_URL` or `GRAFANA_TOKEN` not configured — cannot create silence.";
         }
 
@@ -336,7 +338,7 @@ const mod: BotModule = {
 
         try {
           await axios.post(
-            `${config.grafanaUrl.replace(/\/$/, "")}/api/alertmanager/grafana/api/v2/silences`,
+            `${grafanaUrl.replace(/\/$/, "")}/api/alertmanager/grafana/api/v2/silences`,
             {
               matchers:  [{ name: "alertname", value: record.alertname, isRegex: false }],
               startsAt:  now.toISOString(),
@@ -345,7 +347,7 @@ const mod: BotModule = {
               createdBy: "lumi",
             },
             {
-              headers: { Authorization: `Bearer ${config.grafanaToken}` },
+              headers: { Authorization: `Bearer ${grafanaToken}` },
               timeout: 10_000,
             },
           );
@@ -432,18 +434,18 @@ const mod: BotModule = {
                   }
 
                   // Attach rendered panel image if available
-                  if (config.grafanaUrl) {
+                  if (grafanaUrl) {
                     if (!alert.panelURL) {
                       log.info("no panelURL in webhook payload — skipping panel image");
                     } else if (alert.panelURL.includes("/d/dashboard_uid")) {
                       log.info("test alert panelURL — skipping panel render");
                     } else {
-                      const renderUrl = panelUrlToRenderUrl(alert.panelURL, config.grafanaUrl, alert.status);
+                      const renderUrl = panelUrlToRenderUrl(alert.panelURL, grafanaUrl, alert.status);
                       if (!renderUrl) {
                         log.warn("could not convert panelURL to render URL:", alert.panelURL);
                       } else {
                         try {
-                          await renderAndUpload(client, roomId, renderUrl, config.grafanaToken);
+                          await renderAndUpload(client, roomId, renderUrl, grafanaToken);
                           log.info("panel image sent for", alert.labels.alertname);
                         } catch (err) {
                           log.warn("panel render failed:", err instanceof Error ? err.message : err);

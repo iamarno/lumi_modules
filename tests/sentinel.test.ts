@@ -34,9 +34,9 @@ const { timeAgo, getSimPhase } = mod;
 
 const mockConfig: BotConfig = {
   homeserver: '', userId: '', accessToken: '',
-  prometheusUrl: '', hassUrl: 'http://ha.local:8123', hassToken: 'sentinel-token',
-  grafanaUrl: '', grafanaToken: '', httpAllowedDomains: [], weatherEnabled: false, logLevel: 'info',
+  logLevel: 'info',
   e2eeEnabled: false, deviceId: '', cryptoPassword: '', cryptoSaveInterval: 60,
+  adminUsers: [],
 };
 
 function hassState(entity_id: string, state: string, attrs: Record<string, unknown> = {}, last_changed = '2026-01-01T12:00:00.000Z') {
@@ -126,6 +126,8 @@ describe('sentinel module', () => {
     process.env.SENTINEL_SENSOR_POLL = '0';
     process.env.SENTINEL_SIMULATION_LIGHTS = '';
     process.env.SENTINEL_PRESENCE_ENTITIES = '';
+    process.env.HASS_URL = 'http://ha.local:8123';
+    process.env.HASS_TOKEN = 'sentinel-token';
     mod.register(registry, mockConfig);
     // Clear set calls caused by the armMode seed in register()
     mockStore.set.mockClear();
@@ -137,11 +139,14 @@ describe('sentinel module', () => {
     delete process.env.SENTINEL_SENSOR_POLL;
     delete process.env.SENTINEL_SIMULATION_LIGHTS;
     delete process.env.SENTINEL_PRESENCE_ENTITIES;
+    delete process.env.HASS_URL;
+    delete process.env.HASS_TOKEN;
   });
 
   test('does not register when HASS_TOKEN is empty', () => {
     const reg = new ModuleRegistry();
-    mod.register(reg, { ...mockConfig, hassToken: '' });
+    delete process.env.HASS_TOKEN;
+    mod.register(reg, mockConfig);
     expect(reg.get('sentinel')).toBeUndefined();
   });
 
@@ -450,6 +455,8 @@ describe('sentinel scheduled summary', () => {
     process.env.SENTINEL_SENSOR_POLL = '0';
     process.env.SENTINEL_SIMULATION_LIGHTS = '';
     process.env.SENTINEL_PRESENCE_ENTITIES = '';
+    process.env.HASS_URL = 'http://ha.local:8123';
+    process.env.HASS_TOKEN = 'sentinel-token';
     mod.register(registry, mockConfig);
   });
 
@@ -459,6 +466,8 @@ describe('sentinel scheduled summary', () => {
     delete process.env.SENTINEL_SENSOR_POLL;
     delete process.env.SENTINEL_SIMULATION_LIGHTS;
     delete process.env.SENTINEL_PRESENCE_ENTITIES;
+    delete process.env.HASS_URL;
+    delete process.env.HASS_TOKEN;
   });
 
   function getSummaryTask(reg: ModuleRegistry) {
