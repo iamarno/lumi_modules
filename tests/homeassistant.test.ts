@@ -28,12 +28,20 @@ describe('homeassistant module', () => {
 
   beforeEach(() => {
     registry = new ModuleRegistry();
+    process.env.HASS_URL = 'http://ha.local:8123';
+    process.env.HASS_TOKEN = 'token123';
     mod.register(registry, mockConfig);
   });
 
+  afterEach(() => {
+    delete process.env.HASS_URL;
+    delete process.env.HASS_TOKEN;
+  });
+
   test('does not register !ha when HASS_TOKEN is empty', () => {
+    delete process.env.HASS_TOKEN;
     const reg = new ModuleRegistry();
-    mod.register(reg, { ...mockConfig, hassToken: '' });
+    mod.register(reg, mockConfig);
     expect(reg.get('ha')).toBeUndefined();
   });
 

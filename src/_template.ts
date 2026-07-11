@@ -61,14 +61,15 @@ const mod: BotModule = {
       handler: cmdGreet,
     });
 
-    // Factory pattern — capture config values in a closure.
+    // Factory pattern — read your module's own env vars and capture them in a
+    // closure. Use a module-specific prefix (MYMODULE_*) to avoid collisions.
     registry.register({
       name: "myapi",
       module: MODULE,
       help: "Query my API",
       description: "Sends a query to the configured API endpoint and returns the result.",
       usage: "<query>",
-      handler: makeApiHandler(config.prometheusUrl /* or your own config field */),
+      handler: makeApiHandler(env("MYMODULE_API_URL", "http://localhost:8080")),
     });
 
     // ── Scheduled tasks ──────────────────────────────────────────────────────

@@ -356,16 +356,18 @@ const mod: BotModule = {
     registry.registerModule('sentinel', 'Home security monitoring and light simulation');
 
     const rooms = envList("SENTINEL_ROOMS");
+    const hassUrl = env("HASS_URL", "http://homeassistant.local:8123");
+    const hassToken = env("HASS_TOKEN");
 
-    if (!config.hassToken || rooms.length === 0) {
+    if (!hassToken || rooms.length === 0) {
       log.info("disabled — set SENTINEL_ROOMS and HASS_TOKEN to enable");
       return;
     }
 
     const http = axios.create({
-      baseURL: config.hassUrl,
+      baseURL: hassUrl,
       headers: {
-        Authorization: `Bearer ${config.hassToken}`,
+        Authorization: `Bearer ${hassToken}`,
         "Content-Type": "application/json",
       },
       timeout: 12_000,

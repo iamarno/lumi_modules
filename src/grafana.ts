@@ -1,4 +1,4 @@
-import { BotModule, ModuleRegistry } from "lumi";
+import { BotModule, ModuleRegistry, env } from "lumi";
 import { BotConfig } from "lumi";
 import { logger } from "lumi";
 import { renderAndUpload } from "./lib/grafana_render";
@@ -9,7 +9,9 @@ const mod: BotModule = {
   register(registry: ModuleRegistry, config: BotConfig) {
     registry.registerModule('grafana', 'Render Grafana panels as images');
 
-    if (!config.grafanaUrl) {
+    const grafanaUrl = env("GRAFANA_URL");
+    const grafanaToken = env("GRAFANA_TOKEN");
+    if (!grafanaUrl) {
       log.info("GRAFANA_URL not set — module disabled");
       return;
     }
@@ -28,9 +30,9 @@ const mod: BotModule = {
         const renderPath = args[0]!;
         const url = renderPath.startsWith("http")
           ? renderPath
-          : `${config.grafanaUrl.replace(/\/$/, "")}${renderPath.startsWith("/") ? "" : "/"}${renderPath}`;
+          : `${grafanaUrl.replace(/\/$/, "")}${renderPath.startsWith("/") ? "" : "/"}${renderPath}`;
 
-        await renderAndUpload(client, roomId, url, config.grafanaToken);
+        await renderAndUpload(client, roomId, url, grafanaToken);
         return null;
       },
     });

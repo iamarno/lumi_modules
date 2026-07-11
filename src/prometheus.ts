@@ -63,7 +63,7 @@ const mod: BotModule = {
   register(registry: ModuleRegistry, config: BotConfig) {
     registry.registerModule('prometheus', 'Query Prometheus metrics');
 
-    const base = config.prometheusUrl;
+    const base = env("PROMETHEUS_URL", "http://localhost:9090");
 
     registry.register({
       name: "prom",
